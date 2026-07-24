@@ -1,0 +1,309 @@
+/* Injected Panel Styles for CDCMS Helper */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+#cdcms-helper-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 320px;
+  z-index: 999999;
+  font-family: 'Outfit', sans-serif !important;
+  color: #f8fafc !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(99, 102, 241, 0.1) !important;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease !important;
+  display: flex;
+  flex-direction: column;
+}
+
+#cdcms-helper-panel.collapsed {
+  transform: translateY(calc(100% - 50px)) !important;
+}
+
+/* Header */
+.cdcms-panel-header {
+  padding: 12px 16px;
+  background: rgba(99, 102, 241, 0.15) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cdcms-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  color: #fff !important;
+}
+
+.cdcms-panel-title svg {
+  color: #818cf8 !important;
+}
+
+.cdcms-collapse-btn {
+  background: none !important;
+  border: none !important;
+  color: #94a3b8 !important;
+  cursor: pointer !important;
+  padding: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: transform 0.3s ease !important;
+}
+
+#cdcms-helper-panel.collapsed .cdcms-collapse-btn {
+  transform: rotate(180deg) !important;
+}
+
+/* Body */
+.cdcms-panel-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cdcms-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px !important;
+  color: #cbd5e1 !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+}
+
+.cdcms-stat-val {
+  font-weight: 600 !important;
+  color: #38bdf8 !important;
+}
+
+.cdcms-btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.cdcms-btn-primary:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4) !important;
+}
+
+.cdcms-btn-secondary {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #f8fafc !important;
+  padding: 8px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.cdcms-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.cdcms-btn-success {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 16px !important;
+  border-radius: 8px !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3) !important;
+  transition: all 0.2s ease !important;
+}
+
+.cdcms-btn-success:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4) !important;
+}
+
+.cdcms-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08) !important;
+  margin: 4px 0 !important;
+}
+
+.cdcms-footer {
+  font-size: 10px !important;
+  color: #64748b !important;
+  text-align: center !important;
+  margin-top: 4px !important;
+}
+
+.cdcms-link {
+  color: #818cf8 !important;
+  text-decoration: none !important;
+  font-weight: 500 !important;
+}
+
+.cdcms-link:hover {
+  text-decoration: underline !important;
+}
+
+/* Injected row animations */
+.cdcms-highlight-row td {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  transition: background-color 0.8s ease !important;
+}
+
+.cdcms-warn-row td {
+  background-color: rgba(245, 158, 11, 0.12) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+  transition: background-color 0.8s ease !important;
+}
+
+/* Embedded Toast Notification on Page */
+.cdcms-toast {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  padding: 12px 20px;
+  background: #10b981;
+  color: white;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  z-index: 1000000;
+  animation: cdcmsSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes cdcmsSlideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Custom Premium Modal Dialog */
+.cdcms-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: rgba(8, 10, 20, 0.6) !important;
+  backdrop-filter: blur(5px) !important;
+  -webkit-backdrop-filter: blur(5px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100000000 !important;
+  opacity: 0 !important;
+  transition: opacity 0.25s ease !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.cdcms-modal-overlay.active {
+  opacity: 1 !important;
+}
+
+.cdcms-modal-box {
+  width: 90% !important;
+  max-width: 420px !important;
+  background: rgba(15, 23, 42, 0.95) !important;
+  border: 1px solid rgba(245, 158, 11, 0.25) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(245, 158, 11, 0.15) !important;
+  overflow: hidden !important;
+  transform: scale(0.9) translateY(20px) !important;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.cdcms-modal-overlay.active .cdcms-modal-box {
+  transform: scale(1) translateY(0) !important;
+}
+
+.cdcms-modal-header {
+  padding: 16px 20px !important;
+  background: rgba(245, 158, 11, 0.08) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+}
+
+.cdcms-modal-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #f59e0b !important;
+}
+
+.cdcms-modal-title {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: white !important;
+  margin: 0 !important;
+}
+
+.cdcms-modal-body {
+  padding: 20px !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+  color: #cbd5e1 !important;
+}
+
+.cdcms-modal-footer {
+  padding: 12px 20px !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+
+.cdcms-modal-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+  color: white !important;
+  border: none !important;
+  padding: 8px 20px !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2) !important;
+  transition: all 0.2s ease !important;
+  font-family: 'Outfit', sans-serif !important;
+}
+
+.cdcms-modal-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.3) !important;
+}
+

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mock HP Gas CDCMS Refill Allocation</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      color: #333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #0b3c5d;
+      font-size: 20px;
+      border-bottom: 2px solid #0b3c5d;
+      padding-bottom: 8px;
+      margin-bottom: 20px;
+    }
+    .section-title {
+      font-weight: bold;
+      color: #328cc1;
+      margin-top: 20px;
+      margin-bottom: 10px;
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      font-size: 13px;
+    }
+    th {
+      background-color: #0b3c5d;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .btn-submit {
+      background-color: #328cc1;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .btn-submit:hover {
+      background-color: #0b3c5d;
+    }
+    input[type="text"] {
+      padding: 4px 8px;
+      width: 80px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    select {
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 160px;
+    }
+    .card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 6px;
+      background-color: #fcfcfc;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>HP GAS CDCMS - Order Fulfillment Refill Allocation</h1>
+    
+    <div class="card">
+      <div class="section-title">Allocation Information</div>
+      <p style="font-size:12px;color:#666;">Filter bookings by domestic, commercial, or cylinder size.</p>
+      <button class="btn-submit" style="background-color:#666;">Apply Filter</button>
+    </div>
+
+    <div class="section-title">Refill Details</div>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>SELECT</th>
+          <th>AREA NAME</th>
+          <th>TOTAL PENDING BOOKINGS</th>
+          <th>ALLOCATE CYLINDER</th>
+          <th>DELIVERY MAN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Helper template for rendering vendor options -->
+        <tr>
+          <td><input type="checkbox" id="chk_1"></td>
+          <td>PANDAUL BAZAR (1)</td>
+          <td>2</td>
+          <td><input type="text" id="txt_allocate_1"></td>
+          <td>
+            <select id="sel_vendor_1">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_2"></td>
+          <td>SAGARPUR (2)</td>
+          <td>1</td>
+          <td><input type="text" id="txt_allocate_2"></td>
+          <td>
+            <select id="sel_vendor_2">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_3"></td>
+          <td>KAMALPUR (4)</td>
+          <td>1</td>
+          <td><input type="text" id="txt_allocate_3"></td>
+          <td>
+            <select id="sel_vendor_3">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_4"></td>
+          <td>MOMINPUR (7)</td>
+          <td>1</td>
+          <td><input type="text" id="txt_allocate_4"></td>
+          <td>
+            <select id="sel_vendor_4">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_5"></td>
+          <td>DIHTOLA (8)</td>
+          <td>2</td>
+          <td><input type="text" id="txt_allocate_5"></td>
+          <td>
+            <select id="sel_vendor_5">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_6"></td>
+          <td>MAKSUDA (10)</td>
+          <td>1</td>
+          <td><input type="text" id="txt_allocate_6"></td>
+          <td>
+            <select id="sel_vendor_6">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_7"></td>
+          <td>MOHAN BADHIYAM (29)</td>
+          <td>1</td>
+          <td><input type="text" id="txt_allocate_7"></td>
+          <td>
+            <select id="sel_vendor_7">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" id="chk_8"></td>
+          <td>BIRSAIR (37)</td>
+          <td>3</td>
+          <td><input type="text" id="txt_allocate_8"></td>
+          <td>
+            <select id="sel_vendor_8">
+              <option value="">Select Dly Man</option>
+              <option value="DINESH">DINESH</option>
+              <option value="Genalal Yadav">Genalal Yadav</option>
+              <option value="Saroj kumar Ray">Saroj kumar Ray</option>
+              <option value="SUVASH KUMAR">SUVASH KUMAR</option>
+              <option value="Bajrangi Panjiyar">Bajrangi Panjiyar</option>
+              <option value="BECHAN">BECHAN</option>
+              <option value="BHOGENDRA">BHOGENDRA</option>
+              <option value="delevery boy">delevery boy</option>
+              <option value="DELEVRY BOY">DELEVRY BOY</option>
+              <option value="DELIVERY BOY">DELIVERY BOY</option>
+              <option value="Faiyaz">Faiyaz</option>
+              <option value="MANTUN">MANTUN</option>
+              <option value="Md Razza">Md Razza</option>
+              <option value="SANJAY">SANJAY</option>
+              <option value="Sujeet Kumar">Sujeet Kumar</option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="text-align: right; margin-top: 20px;">
+      <input type="button" id="btnAllocateBooking" class="btn-submit" value="Allocate Booking" onclick="alert('Cylinder allocation submitted successfully!');">
+    </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CDCMS Area-Vendor Mapping Dashboard</title>
+  <link rel="stylesheet" href="design_system.css">
+  <style>
+    body {
+      padding: 40px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+      background: radial-gradient(circle at top right, hsla(250, 80%, 20%, 0.15), transparent 40%), var(--bg-primary);
+    }
+    
+    .dashboard-container {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+    
+    .header-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+    }
+    
+    .header-text h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+    }
+    
+    .header-text p {
+      margin: 8px 0 0 0;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+    
+    .stat-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent);
+      opacity: 0.7;
+    }
+    
+    .stat-card.success::after { background: var(--accent-success); }
+    .stat-card.warning::after { background: var(--accent-warning); }
+    .stat-card.info::after { background: var(--accent-cyan); }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .control-panel {
+      padding: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    .search-filter-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-grow: 1;
+      max-width: 600px;
+    }
+    
+    .search-input {
+      flex-grow: 1;
+    }
+    
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .delivery-man-manager {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .delivery-man-manager h3 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .delivery-man-input-group {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .delivery-tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 36px;
+      padding: 10px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      border: 1px dashed var(--border-light);
+    }
+    
+    .delivery-tag {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-secondary);
+    }
+    
+    .delivery-tag button {
+      background: none;
+      border: none;
+      color: var(--accent-danger);
+      cursor: pointer;
+      font-weight: 700;
+      padding: 0;
+      font-size: 12px;
+    }
+    
+    .mapping-table-container {
+      max-height: 600px;
+      overflow-y: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-light);
+    }
+    
+    .mapping-table {
+      margin-top: 0;
+    }
+    
+    .mapping-table th {
+      position: sticky;
+      top: 0;
+      background: var(--bg-primary);
+      z-index: 10;
+      box-shadow: 0 1px 0 var(--border-light);
+    }
+    
+    .vendor-select {
+      width: 100%;
+      max-width: 280px;
+      padding: 8px 12px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-light);
+      color: var(--text-primary);
+      border-radius: var(--radius-sm);
+      outline: none;
+      font-family: var(--font-family);
+      cursor: pointer;
+    }
+    
+    .vendor-select:focus {
+      border-color: var(--accent);
+    }
+    
+    .status-badge {
+      display: inline-flex;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .status-mapped {
+      background: var(--accent-success-glow);
+      color: var(--accent-success);
+      border: 1px solid hsla(145, 80%, 45%, 0.2);
+    }
+    
+    .status-unmapped {
+      background: var(--accent-warning-glow);
+      color: var(--accent-warning);
+      border: 1px solid hsla(35, 90%, 55%, 0.2);
+    }
+    
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 1000;
+    }
+    
+    .toast {
+      padding: 16px 24px;
+      border-radius: var(--radius-sm);
+      color: white;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(50px);
+      opacity: 0;
+      animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    .toast-success {
+      background: linear-gradient(135deg, var(--accent-success), hsl(155, 80%, 35%));
+    }
+    
+    .toast-info {
+      background: linear-gradient(135deg, var(--accent), hsl(270, 85%, 50%));
+    }
+    
+    @keyframes slideIn {
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body class="animate-fade-in">
+
+  <div class="dashboard-container">
+    
+    <!-- Top Header -->
+    <div class="header-section glass-panel">
+      <div class="header-text">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="brand-badge">MR.RAHUL SCRIPTS</div>
+          <div id="license-badge" class="status-badge" style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border: 1px solid var(--border-light);">Checking License...</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 12px; margin-top: 5px;">
+          <div class="logo-container">
+            <svg class="brand-logo" width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 2C16 2 24 10 24 18C24 22.4183 20.4183 26 16 26C11.5817 26 8 22.4183 8 18C8 10 16 2 16 2Z" fill="url(#flameGrad)" />
+              <path d="M16 8C16 8 20 13 20 18C20 20.2091 18.2091 22 16 22C13.7909 22 12 20.2091 12 18C12 13 16 8 16 8Z" fill="url(#innerFlameGrad)" />
+              <circle cx="16" cy="18" r="2" fill="#FFFFFF" opacity="0.8"/>
+              <defs>
+                <linearGradient id="flameGrad" x1="16" y1="2" x2="16" y2="26" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#818CF8"/>
+                  <stop offset="1" stop-color="#4F46E5"/>
+                </linearGradient>
+                <linearGradient id="innerFlameGrad" x1="16" y1="8" x2="16" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38BDF8"/>
+                  <stop offset="1" stop-color="#0284C7"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </div>
+          <h1 style="margin: 0;">CDCMS Area-Vendor Mapping</h1>
+        </div>
+        <p style="margin: 10px 0 0 0;">Set which delivery man is assigned to each area. The automation script will use these mappings on the HP Gas Portal.</p>
+      </div>
+      <div class="action-group">
+        <button id="btn-license-settings" class="btn btn-secondary" style="border-color: var(--accent-indigo);">
+          🔑 License Settings
+        </button>
+        <button id="theme-toggle" class="btn btn-secondary">
+          <svg class="sun-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="display: none;"><path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM8 0a.5.5 0 0 1 .5.5v2.5a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2.5a.5.5 0 0 1-1 0v-2.5a.5.5 0 0 1 .5-.5zm8-5a.5.5 0 0 1-.5.5h-2.5a.5.5 0 0 1 0-1H15a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5H0a.5.5 0 0 1 0-1h2.5A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.768 1.768a.5.5 0 0 1-.707-.707l1.768-1.768a.5.5 0 0 1 .707 0zM4.464 11.536a.5.5 0 0 1 0 .707L2.697 14.01a.5.5 0 0 1-.707-.707l1.768-1.768a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.768-1.768a.5.5 0 0 1 .707-.707l1.768 1.768a.5.5 0 0 1 0 .707zM4.464 4.464a.5.5 0 0 1-.707 0L1.99 2.697a.5.5 0 0 1 .707-.707l1.768 1.768a.5.5 0 0 1 0 .707z"/></svg>
+          <svg class="moon-icon" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/></svg>
+          <span id="theme-text">Day Mode</span>
+        </button>
+        <button id="btn-export" class="btn btn-secondary">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg>
+          Export
+        </button>
+        <button id="btn-import" class="btn btn-secondary">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/></svg>
+          Import
+        </button>
+        <input type="file" id="import-file" style="display: none;" accept=".json">
+      </div>
+    </div>
+    
+    <!-- Dashboard content wrapper (Toggled via JS based on License) -->
+    <div id="main-dashboard-content" style="display: none; flex-direction: column; gap: 30px;">
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card glass-panel info">
+          <div class="stat-value" id="stat-total-areas">0</div>
+          <div class="stat-label">Total Areas</div>
+        </div>
+        <div class="stat-card glass-panel success">
+          <div class="stat-value" id="stat-mapped-areas">0</div>
+          <div class="stat-label">Mapped Areas</div>
+        </div>
+        <div class="stat-card glass-panel warning">
+          <div class="stat-value" id="stat-unmapped-areas">0</div>
+          <div class="stat-label">Unmapped Areas</div>
+        </div>
+        <div class="stat-card glass-panel">
+          <div class="stat-value" id="stat-total-vendors">0</div>
+          <div class="stat-label">Delivery Men</div>
+        </div>
+      </div>
+      
+      <!-- Delivery Men Manager -->
+      <div class="delivery-man-manager glass-panel">
+        <h3>Manage Delivery Men List</h3>
+        <p style="color: var(--text-secondary); margin: -5px 0 10px 0; font-size: 13px;">
+          These names will appear in the dropdowns below. You can add them here or they will automatically sync when you open the HP Gas portal.
+        </p>
+        <div class="delivery-man-input-group">
+          <input type="text" id="new-vendor-name" class="input-field search-input" placeholder="Enter Delivery Man Name (e.g. Ramesh Kumar)">
+          <button id="btn-add-vendor" class="btn btn-primary">Add Delivery Man</button>
+        </div>
+        <div class="delivery-tags-container" id="vendor-tags-container">
+          <!-- Tag items injected here -->
+        </div>
+      </div>
+      
+      <!-- Bulk Area Manager -->
+      <div class="delivery-man-manager glass-panel">
+        <h3>Bulk Area Import / Reset</h3>
+        <p style="color: var(--text-secondary); margin: -5px 0 10px 0; font-size: 13px;">
+          Excel sheet se <strong>Area Code</strong> aur <strong>Area Name</strong> ke columns copy karke yahan paste karein. (Format: Code [Tab] Name)
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <textarea id="excel-paste-area" class="input-field" style="width: 100%; height: 110px; resize: vertical; font-family: monospace; font-size: 12px; padding: 10px; box-sizing: border-box;" placeholder="Excel se columns copy karke yahan paste karein...&#10;Example:&#10;1	PANDAUL BAZAR&#10;2	SAGARPUR&#10;3	BRAHMOTRA"></textarea>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <button id="btn-import-append" class="btn btn-primary">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/></svg>
+              Add / Append Areas
+            </button>
+            <button id="btn-import-replace" class="btn btn-warning">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-11 2h3.932a.25.25 0 0 0 .192-.41L2.692 6.23a.25.25 0 0 0-.384 0L.342 8.59A.25.25 0 0 0 .534 9z"/><path fill-rule="evenodd" d="M8 3c-1.552 0-2.94.707-3.857 1.818a.5.5 0 1 1-.771-.636A6.002 6.002 0 0 1 13.917 7H12.9A5.002 5.002 0 0 0 8 3zM3.1 9a5.002 5.002 0 0 0 8.757 2.182.5.5 0 1 1 .771.636A6.002 6.002 0 0 1 2.083 9H3.1z"/></svg>
+              Replace All Areas
+            </button>
+            <button id="btn-clear-all-areas" class="btn btn-danger" style="margin-left: auto;">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/><path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/></svg>
+              Delete All Areas
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Search & Filter Control Panel -->
+      <div class="control-panel glass-panel">
+        <div class="search-filter-group">
+          <input type="text" id="search-box" class="input-field search-input" placeholder="Search by Area Code or Area Name...">
+          <select id="filter-select" class="vendor-select" style="max-width: 150px;">
+            <option value="all">All Areas</option>
+            <option value="mapped">Mapped</option>
+            <option value="unmapped">Unmapped</option>
+          </select>
+        </div>
+        <div>
+          <button id="btn-save-all" class="btn btn-success animate-pulse-glow">Save All Changes</button>
+        </div>
+      </div>
+      
+      <!-- Mappings Table -->
+      <div class="mapping-table-container glass-panel">
+        <table class="custom-table mapping-table">
+          <thead>
+            <tr>
+              <th style="width: 120px;">Area Code</th>
+              <th>Area Name</th>
+              <th style="width: 150px;">Status</th>
+              <th style="width: 320px;">Assigned Delivery Man</th>
+            </tr>
+          </thead>
+          <tbody id="mapping-tbody">
+            <!-- Rows will be injected here dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- LICENSE ACTIVATION PANEL (Shown when inactive/expired) -->
+    <div id="license-activation-screen" class="glass-panel" style="display: none; padding: 40px; text-align: center; max-width: 600px; margin: 20px auto; flex-direction: column; gap: 24px; align-items: center;">
+      <div style="background: rgba(99, 102, 241, 0.1); color: var(--accent); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+        <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+          <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
+        </svg>
+      </div>
+      <h2 style="font-size: 22px; font-weight: 700; margin: 0;">CDCMS License Key Required</h2>
+      <p style="color: var(--text-secondary); max-width: 480px; margin: 0 auto 10px auto; font-size: 14px;">
+        Your license is inactive or expired. Please purchase a license key or enter your existing key below to unlock the dashboard and enable auto-allocations.
+      </p>
+      
+      <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; text-align: left; max-width: 400px;">
+        <label for="input-license-key" style="font-size: 12px; font-weight: 600;">Enter License Key</label>
+        <input type="text" id="input-license-key" class="input-field" style="width: 100%; font-family: monospace; text-align: center; font-weight: 700; letter-spacing: 1px;" placeholder="CDCMS-XXXX-YYYY-ZZZZ">
+      </div>
+      
+      <div style="display: flex; gap: 12px; width: 100%; max-width: 400px; margin-top: 10px;">
+        <a href="https://licensescript.netlify.app/" id="btn-buy-license" target="_blank" class="btn btn-secondary" style="flex: 1; text-decoration: none;">Get License Key</a>
+        <button id="btn-activate-license" class="btn btn-primary animate-pulse-glow" style="flex: 1;">Activate License</button>
+      </div>
+      
+      <div id="activation-error-msg" style="color: var(--accent-danger); font-size: 13px; font-weight: 600; margin-top: 10px; display: none;"></div>
+    </div>
+
+    <!-- LICENSE MODAL (For modifying key when active) -->
+    <div id="license-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+      <div class="glass-panel" style="width: 100%; max-width: 500px; padding: 30px; display: flex; flex-direction: column; gap: 20px; position: relative;">
+        <button id="btn-close-license-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer;">&times;</button>
+        <h3 style="margin: 0; font-size: 18px; font-weight: 700;">🔑 License Details</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label style="font-size: 12px;">Active License Key</label>
+          <input type="text" id="modal-license-key-display" readonly style="font-family: monospace; font-weight: 700; color: var(--accent-cyan); text-align: center; background: var(--bg-tertiary);">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          <div>
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Company</span>
+            <strong id="modal-company-display" style="display: block; font-size: 14px; margin-top: 4px;">N/A</strong>
+          </div>
+          <div>
+            <span style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;">Expiry Date</span>
+            <strong id="modal-expiry-display" style="display: block; font-size: 14px; margin-top: 4px;">N/A</strong>
+          </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-light); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
+          <label style="font-size: 12px;">Update or Change License Key</label>
+          <div style="display: flex; gap: 10px;">
+            <input type="text" id="input-new-license-key" placeholder="Enter new key" style="flex: 1; font-family: monospace; font-size: 13px;">
+            <button id="btn-update-license-key" class="btn btn-primary" style="padding: 10px 15px;">Update</button>
+          </div>
+          <div id="modal-error-msg" style="color: var(--accent-danger); font-size: 12px; font-weight: 600; display: none;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Toast notifications wrapper -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="options.js"></script>
+</body>
+</html>

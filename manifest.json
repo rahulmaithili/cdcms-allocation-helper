@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "CDCMS Allocation Helper",
+  "version": "1.0.0",
+  "description": "Automating cylinder allocation on HP Gas CDCMS by mapping area codes to delivery vendors.",
+  "permissions": [
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://hpgasweb.hpcl.co.in/DCMSCentralizationApp/Views/OrderFulfillment/Allocation/Allocation.aspx*",
+        "*://hpgasweb.hpcl.co.in/DCMSCentralizationApp/Views/OrderFulfillment/PrintCashMemo/AllocationWiseCashMemoPrint.aspx*",
+        "file://*/*mock_allocation.html*",
+        "file://*/*mock_print.html*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_end"
+    }
+  ]
+}

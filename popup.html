@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CDCMS Allocator</title>
+  <link rel="stylesheet" href="design_system.css">
+  <style>
+    body {
+      width: 300px;
+      padding: 16px;
+      margin: 0;
+      background: var(--bg-primary);
+      overflow: hidden;
+    }
+    
+    .popup-container {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .popup-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 10px;
+    }
+    
+    .popup-header h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .popup-body {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-secondary);
+      font-size: 13px;
+    }
+    
+    .stat-val {
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+    
+    .btn-full {
+      width: 100%;
+    }
+    
+    .footer {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="popup-container animate-fade-in">
+    
+    <div class="popup-header" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px;">
+      <div class="brand-badge" style="margin-bottom: 2px;">MR.RAHUL SCRIPTS</div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <svg width="18" height="18" fill="var(--accent)" viewBox="0 0 16 16">
+          <path d="M15.5 .5a.5.5 0 0 0-.75-.43L.5 8.2a.5.5 0 0 0-.05.88l4.1 2.33 2.3 4.14A.5.5 0 0 0 7.7 16h.05a.5.5 0 0 0 .44-.33l7.46-14.7a.5.5 0 0 0-.15-.47zM8.36 12.68l-.8-2.6 5.86-5.87-5.06 8.47z"/>
+        </svg>
+        <h2 style="margin: 0; font-size: 15px;">CDCMS Allocator Helper</h2>
+      </div>
+    </div>
+    
+    <div class="popup-body">
+      <div class="stat-row">
+        <span>Mapped Areas:</span>
+        <span class="stat-val" id="mapped-count">0 / 0</span>
+      </div>
+      <div class="stat-row">
+        <span>Delivery Men:</span>
+        <span class="stat-val" id="vendor-count">0</span>
+      </div>
+      
+      <button id="btn-open-settings" class="btn btn-primary btn-full">
+        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.17.311c.18.322.283.688.3 1.061l-.34.1a1.464 1.464 0 0 1 0 2.81l.34.1a1.464 1.464 0 0 1-.872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.17-.311a1.464 1.464 0 0 1-.872-2.105l.34-.1a1.464 1.464 0 0 1 0-2.81l-.34-.1a1.464 1.464 0 0 1 .872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/></svg>
+        Configure Area Mapping
+      </button>
+    </div>
+    
+    <div class="footer">
+      Works on HP Gas CDCMS Allocation Page
+    </div>
+    
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
