@@ -6,60 +6,91 @@
   <link rel="stylesheet" href="design_system.css">
   <style>
     body {
-      padding: 40px;
+      padding: 40px 24px;
       display: flex;
       justify-content: center;
       min-height: 100vh;
       box-sizing: border-box;
-      background: radial-gradient(circle at top right, hsla(250, 80%, 20%, 0.15), transparent 40%), var(--bg-primary);
+      background:
+        radial-gradient(640px 300px at 85% -5%, hsla(250, 85%, 65%, 0.16), transparent 60%),
+        radial-gradient(520px 260px at 0% 0%, hsla(185, 85%, 52%, 0.10), transparent 55%),
+        var(--bg-primary);
     }
-    
+
+    body.light-theme {
+      background:
+        radial-gradient(640px 300px at 85% -5%, hsla(250, 80%, 60%, 0.10), transparent 60%),
+        radial-gradient(520px 260px at 0% 0%, hsla(185, 85%, 52%, 0.08), transparent 55%),
+        var(--bg-primary);
+    }
+
     .dashboard-container {
       width: 100%;
       max-width: 1200px;
       display: flex;
       flex-direction: column;
-      gap: 30px;
+      gap: 26px;
     }
-    
+
     .header-section {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 24px;
+      gap: 24px;
+      flex-wrap: wrap;
+      padding: 26px 28px;
     }
-    
+
+    .header-badges {
+      flex-wrap: wrap;
+    }
+
+    .header-text {
+      min-width: 260px;
+      flex: 1 1 320px;
+    }
+
     .header-text h1 {
       margin: 0;
-      font-size: 28px;
+      font-size: 30px;
       font-weight: 700;
-      background: linear-gradient(135deg, var(--text-primary), var(--accent-cyan));
+      line-height: 1.15;
+      background: linear-gradient(135deg, var(--text-primary) 20%, var(--accent-cyan));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
     }
-    
+
     .header-text p {
-      margin: 8px 0 0 0;
+      margin: 10px 0 0 0;
       color: var(--text-secondary);
       font-size: 14px;
+      line-height: 1.6;
+      max-width: 640px;
     }
-    
+
+    .action-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
+      gap: 18px;
     }
-    
+
     .stat-card {
-      padding: 20px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
       gap: 8px;
       position: relative;
       overflow: hidden;
     }
-    
+
     .stat-card::after {
       content: '';
       position: absolute;
@@ -70,113 +101,120 @@
       background: var(--accent);
       opacity: 0.7;
     }
-    
+
     .stat-card.success::after { background: var(--accent-success); }
     .stat-card.warning::after { background: var(--accent-warning); }
     .stat-card.info::after { background: var(--accent-cyan); }
-    
+
     .stat-value {
       font-size: 32px;
       font-weight: 700;
       color: var(--text-primary);
+      letter-spacing: -0.5px;
     }
-    
+
     .stat-label {
       font-size: 12px;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 1px;
     }
-    
+
     .control-panel {
       padding: 20px;
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
+      gap: 16px;
     }
-    
+
     .search-filter-group {
       display: flex;
       align-items: center;
       gap: 12px;
       flex-grow: 1;
       max-width: 600px;
+      flex-wrap: wrap;
     }
-    
+
     .search-input {
       flex-grow: 1;
+      min-width: 200px;
     }
-    
-    .action-group {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
+
     .delivery-man-manager {
-      padding: 20px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 14px;
     }
-    
+
     .delivery-man-manager h3 {
       margin: 0;
       font-size: 16px;
       font-weight: 600;
     }
-    
+
     .delivery-man-input-group {
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
     }
-    
+
     .delivery-tags-container {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       min-height: 36px;
-      padding: 10px;
+      padding: 12px;
       background: var(--bg-tertiary);
-      border-radius: var(--radius-sm);
+      border-radius: 12px;
       border: 1px dashed var(--border-light);
     }
-    
+
     .delivery-tag {
       background: var(--bg-secondary);
       border: 1px solid var(--border-light);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 13px;
       display: flex;
       align-items: center;
       gap: 6px;
       color: var(--text-secondary);
+      transition: border-color var(--transition-fast);
     }
-    
+
+    .delivery-tag:hover {
+      border-color: var(--border-strong);
+    }
+
     .delivery-tag button {
       background: none;
       border: none;
       color: var(--accent-danger);
       cursor: pointer;
       font-weight: 700;
-      padding: 0;
-      font-size: 12px;
+      padding: 0 2px;
+      font-size: 14px;
+      line-height: 1;
+      border-radius: 50%;
     }
-    
+
     .mapping-table-container {
       max-height: 600px;
       overflow-y: auto;
+      overflow-x: auto;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-light);
     }
-    
+
     .mapping-table {
       margin-top: 0;
+      min-width: 680px;
     }
-    
+
     .mapping-table th {
       position: sticky;
       top: 0;
@@ -184,45 +222,70 @@
       z-index: 10;
       box-shadow: 0 1px 0 var(--border-light);
     }
-    
+
     .vendor-select {
       width: 100%;
       max-width: 280px;
-      padding: 8px 12px;
+      height: 44px;
+      padding: 0 12px;
       background: var(--bg-tertiary);
       border: 1px solid var(--border-light);
       color: var(--text-primary);
       border-radius: var(--radius-sm);
       outline: none;
       font-family: var(--font-family);
+      font-size: 14px;
       cursor: pointer;
+      box-sizing: border-box;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     }
-    
+
     .vendor-select:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
     }
-    
+
     .status-badge {
       display: inline-flex;
-      padding: 4px 8px;
-      border-radius: 4px;
+      align-items: center;
+      padding: 5px 11px;
+      border-radius: 999px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.4px;
       text-transform: uppercase;
     }
-    
+
     .status-mapped {
       background: var(--accent-success-glow);
       color: var(--accent-success);
-      border: 1px solid hsla(145, 80%, 45%, 0.2);
+      border: 1px solid hsla(145, 80%, 45%, 0.25);
     }
-    
+
     .status-unmapped {
       background: var(--accent-warning-glow);
       color: var(--accent-warning);
-      border: 1px solid hsla(35, 90%, 55%, 0.2);
+      border: 1px solid hsla(35, 90%, 55%, 0.25);
     }
-    
+
+    /* License card — premium treatment (JS toggles display only) */
+    .license-card {
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .license-lock {
+      box-shadow: 0 0 0 1px var(--border-glow), 0 10px 28px var(--accent-glow);
+    }
+
+    .license-actions {
+      flex-wrap: wrap;
+    }
+
+    .license-actions .btn {
+      min-height: 44px;
+    }
+
     /* Toast notifications */
     .toast-container {
       position: fixed;
@@ -233,12 +296,13 @@
       gap: 10px;
       z-index: 1000;
     }
-    
+
     .toast {
-      padding: 16px 24px;
-      border-radius: var(--radius-sm);
+      padding: 14px 20px;
+      border-radius: 12px;
       color: white;
       font-size: 14px;
+      font-weight: 500;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -246,20 +310,99 @@
       transform: translateY(50px);
       opacity: 0;
       animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      max-width: min(420px, calc(100vw - 48px));
     }
-    
+
     .toast-success {
       background: linear-gradient(135deg, var(--accent-success), hsl(155, 80%, 35%));
     }
-    
+
     .toast-info {
       background: linear-gradient(135deg, var(--accent), hsl(270, 85%, 50%));
     }
-    
+
+    .toast-danger {
+      background: linear-gradient(135deg, var(--accent-danger), hsl(0, 80%, 45%));
+    }
+
     @keyframes slideIn {
       to {
         transform: translateY(0);
         opacity: 1;
+      }
+    }
+
+    /* Responsive — buttons wrap cleanly, table scrolls, no page overflow */
+    @media (max-width: 900px) {
+      body {
+        padding: 24px 16px;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .header-section {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 22px 20px;
+      }
+
+      .header-text h1 {
+        font-size: 26px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 16px 12px;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header-text h1 {
+        font-size: 23px;
+      }
+
+      .search-filter-group {
+        max-width: none;
+      }
+
+      .search-input {
+        min-width: 0;
+        width: 100%;
+      }
+
+      .control-panel {
+        padding: 16px;
+      }
+
+      .delivery-man-manager {
+        padding: 18px 16px;
+      }
+
+      .license-actions {
+        flex-direction: column;
+      }
+
+      .license-actions .btn {
+        width: 100%;
+      }
+
+      .license-modal-panel {
+        margin: 0 12px;
+      }
+
+      .toast-container {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+      }
+
+      .toast {
+        max-width: none;
       }
     }
   </style>
@@ -271,7 +414,7 @@
     <!-- Top Header -->
     <div class="header-section glass-panel">
       <div class="header-text">
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="header-badges" style="display: flex; align-items: center; gap: 8px;">
           <div class="brand-badge">MR.RAHUL SCRIPTS</div>
           <div id="license-badge" class="status-badge" style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border: 1px solid var(--border-light);">Checking License...</div>
         </div>
@@ -414,8 +557,8 @@
     </div>
 
     <!-- LICENSE ACTIVATION PANEL (Shown when inactive/expired) -->
-    <div id="license-activation-screen" class="glass-panel" style="display: none; padding: 40px; text-align: center; max-width: 600px; margin: 20px auto; flex-direction: column; gap: 24px; align-items: center;">
-      <div style="background: rgba(99, 102, 241, 0.1); color: var(--accent); width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+    <div id="license-activation-screen" class="glass-panel license-card" style="display: none; padding: 44px 40px; text-align: center; max-width: 600px; margin: 20px auto; flex-direction: column; gap: 24px; align-items: center;">
+      <div class="license-lock" style="background: linear-gradient(135deg, hsla(250, 85%, 68%, 0.18), hsla(185, 85%, 52%, 0.16)); color: var(--accent); width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
         <svg width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
           <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2zM5 8h6a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/>
         </svg>
@@ -430,7 +573,7 @@
         <input type="text" id="input-license-key" class="input-field" style="width: 100%; font-family: monospace; text-align: center; font-weight: 700; letter-spacing: 1px;" placeholder="CDCMS-XXXX-YYYY-ZZZZ">
       </div>
       
-      <div style="display: flex; gap: 12px; width: 100%; max-width: 400px; margin-top: 10px;">
+      <div class="license-actions" style="display: flex; gap: 12px; width: 100%; max-width: 400px; margin-top: 10px;">
         <a href="https://licensescript.netlify.app/" id="btn-buy-license" target="_blank" class="btn btn-secondary" style="flex: 1; text-decoration: none;">Get License Key</a>
         <button id="btn-activate-license" class="btn btn-primary animate-pulse-glow" style="flex: 1;">Activate License</button>
       </div>
@@ -440,13 +583,13 @@
 
     <!-- LICENSE MODAL (For modifying key when active) -->
     <div id="license-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
-      <div class="glass-panel" style="width: 100%; max-width: 500px; padding: 30px; display: flex; flex-direction: column; gap: 20px; position: relative;">
+      <div class="glass-panel license-modal-panel" style="width: 100%; max-width: 500px; padding: 30px; display: flex; flex-direction: column; gap: 20px; position: relative;">
         <button id="btn-close-license-modal" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer;">&times;</button>
         <h3 style="margin: 0; font-size: 18px; font-weight: 700;">🔑 License Details</h3>
         
         <div style="display: flex; flex-direction: column; gap: 8px;">
           <label style="font-size: 12px;">Active License Key</label>
-          <input type="text" id="modal-license-key-display" readonly style="font-family: monospace; font-weight: 700; color: var(--accent-cyan); text-align: center; background: var(--bg-tertiary);">
+          <input type="text" id="modal-license-key-display" class="input-field" readonly style="font-family: monospace; font-weight: 700; color: var(--accent-cyan); text-align: center; background: var(--bg-tertiary);">
         </div>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -463,7 +606,7 @@
         <div style="border-top: 1px solid var(--border-light); padding-top: 15px; display: flex; flex-direction: column; gap: 10px;">
           <label style="font-size: 12px;">Update or Change License Key</label>
           <div style="display: flex; gap: 10px;">
-            <input type="text" id="input-new-license-key" placeholder="Enter new key" style="flex: 1; font-family: monospace; font-size: 13px;">
+            <input type="text" id="input-new-license-key" class="input-field" placeholder="Enter new key" style="flex: 1; font-family: monospace; font-size: 13px;">
             <button id="btn-update-license-key" class="btn btn-primary" style="padding: 10px 15px;">Update</button>
           </div>
           <div id="modal-error-msg" style="color: var(--accent-danger); font-size: 12px; font-weight: 600; display: none;"></div>
