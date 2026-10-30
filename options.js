@@ -110,7 +110,10 @@ const DEFAULT_AREAS = [
 ];
 
 // --- LICENSE SYSTEM CONFIGURATION ---
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyniiGJoVV3_P2KKifUfw-8U8E-1EnYGEKpc3wByfdsmKKDKkedI87UR5nS4SUln3aE/exec"; // <-- Replace with your deployed Google Apps Script URL
+// LicenseWala portal: keys are issued here, and verification goes directly
+// to the portal's Supabase license RPC — no intermediate backend.
+const LICENSEWALA_RPC_URL = "https://wyeejbncddpxhwtijkjt.supabase.co/rest/v1/rpc/verify_license";
+const LICENSEWALA_ANON_KEY = "sb_publishable_VfUVN_NPMbe9OudO5ZonPw_kMKaub_u";
 const NETLIFY_PORTAL_URL = "https://licensescript.netlify.app/"; // <-- Replace with your Netlify portal URL
 
 // App State
@@ -195,32 +198,36 @@ function getOrCreateDeviceId() {
   });
 }
 
-// POST communication helper with GAS API
+// Verify a license key against the LicenseWala portal (Supabase RPC).
+// Keeps the same {status, expiry, company, message} response shape the
+// existing callers (checkLicense, syncLicenseOnline, activation handlers)
+// already expect, so their status handling and UI messages stay untouched.
+// A non-2xx response throws so callers fall back to the cached license,
+// exactly like the old network-failure path.
 async function apiPost(data) {
-  if (GAS_API_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
-    // Demo mock responses if backend is not yet set up
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        if (data.action === "verify_license") {
-          if (data.licenseKey === "TRIAL-KEY") {
-            resolve({ status: "active", company: "Local Trial User", expiry: "2029-12-31" });
-          } else {
-            resolve({ status: "invalid", message: "Invalid key. Use 'TRIAL-KEY' to test locally." });
-          }
-        }
-      }, 800);
-    });
+  if (!data || data.action !== "verify_license") {
+    return { status: "invalid", message: "Unsupported license action." };
+  }
+  const key = String(data.licenseKey || "").trim().toUpperCase();
+  if (!key) {
+    return { status: "invalid", message: "Please enter a valid License Key." };
   }
 
-  const response = await fetch(GAS_API_URL, {
+  const response = await fetch(LICENSEWALA_RPC_URL, {
     method: "POST",
-    mode: "cors",
-    redirect: "follow",
     headers: {
-      "Content-Type": "text/plain;charset=utf-8"
+      "apikey": LICENSEWALA_ANON_KEY,
+      "Authorization": `Bearer ${LICENSEWALA_ANON_KEY}`,
+      "Content-Type": "application/json"
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify({
+      p_license_key: key,
+      p_device_id: data.deviceId || ""
+    })
   });
+  if (!response.ok) {
+    throw new Error(`License server returned ${response.status}`);
+  }
   return await response.json();
 }
 
@@ -501,6 +508,14 @@ function updateStats() {
   statTotalVendors.innerText = state.vendors.length;
 }
 
+// Reset the list filters so an imported (or cleared) list always renders
+// in full. Without this, a live search/filter from before the import keeps
+// filtering the new list and it looks like the import lost rows.
+function resetListFilters() {
+  if (searchBox) searchBox.value = "";
+  if (filterSelect) filterSelect.value = "all";
+}
+
 // Render the entire layout
 function renderAll() {
   updateStats();
@@ -536,7 +551,12 @@ function renderMappingTable() {
   const filter = filterSelect.value;
   
   const filteredAreas = state.areas.filter(area => {
-    const matchesSearch = area.code.includes(query) || area.name.toLowerCase().includes(query);
+    if (!area) return false;
+    // Imported data may carry numeric codes/names — coerce before the
+    // string calls, otherwise one odd row throws and the table renders blank.
+    const code = String(area.code ?? "");
+    const name = String(area.name ?? "");
+    const matchesSearch = code.includes(query) || name.toLowerCase().includes(query);
     
     const isMapped = !!state.mappings[area.code];
     let matchesFilter = true;
@@ -696,17 +716,52 @@ importFileInput.addEventListener("change", (e) => {
   reader.onload = function(evt) {
     try {
       const data = JSON.parse(evt.target.result);
-      if (data.mappings && Array.isArray(data.vendors)) {
-        state.mappings = data.mappings;
-        state.vendors = data.vendors;
-        if (data.areas) state.areas = data.areas;
-        
-        saveToStorage();
-        renderAll();
-        showToast("Backup imported successfully!", "success");
-      } else {
+      const hasMappings = data && typeof data.mappings === "object" && data.mappings !== null;
+      const hasVendors = data && Array.isArray(data.vendors);
+      const hasAreas = data && Array.isArray(data.areas);
+      // Accept the file if ANY section is present — a backup missing the
+      // vendors array used to be rejected outright even when its areas
+      // were perfectly fine. Sections absent from the file are left as-is.
+      if (!hasMappings && !hasVendors && !hasAreas) {
         showToast("Invalid backup file structure!", "danger");
+        return;
       }
+
+      if (hasAreas) {
+        // Keep only entries with a code and a name, both coerced to strings.
+        state.areas = data.areas
+          .filter(a => a && a.code !== undefined && a.code !== null && a.code !== "" && a.name !== undefined && a.name !== null && a.name !== "")
+          .map(a => ({ code: String(a.code), name: String(a.name) }));
+      }
+      if (hasVendors) {
+        // Vendors are strings only.
+        state.vendors = data.vendors.filter(v => typeof v === "string" && v);
+      }
+      if (hasMappings) {
+        // Accept the object form {code: vendor} AND the array form
+        // [{code, vendor}], normalized to the object form.
+        const normalized = {};
+        if (Array.isArray(data.mappings)) {
+          data.mappings.forEach(m => {
+            if (m && m.code !== undefined && m.code !== null && m.code !== "" && m.vendor) {
+              normalized[String(m.code)] = String(m.vendor);
+            }
+          });
+        } else {
+          Object.keys(data.mappings).forEach(code => {
+            const vendor = data.mappings[code];
+            if (vendor !== undefined && vendor !== null && vendor !== "") {
+              normalized[String(code)] = String(vendor);
+            }
+          });
+        }
+        state.mappings = normalized;
+      }
+
+      resetListFilters();
+      saveToStorage();
+      renderAll();
+      showToast(`${state.areas.length} areas, ${state.vendors.length} vendors, ${Object.keys(state.mappings).length} mappings imported`, "success");
     } catch (err) {
       showToast("Error parsing backup file!", "danger");
     }
@@ -779,9 +834,11 @@ btnImportAppend.addEventListener("click", () => {
   let updatedCount = 0;
   
   parsed.forEach(p => {
-    const existingIdx = state.areas.findIndex(a => a.code === p.code);
+    // Compare codes as strings: areas stored from older backups may carry
+    // numeric codes, which would otherwise never match and duplicate rows.
+    const existingIdx = state.areas.findIndex(a => String(a.code) === p.code);
     if (existingIdx !== -1) {
-      if (state.areas[existingIdx].name !== p.name) {
+      if (String(state.areas[existingIdx].name) !== p.name) {
         state.areas[existingIdx].name = p.name;
         updatedCount++;
       }
@@ -792,6 +849,7 @@ btnImportAppend.addEventListener("click", () => {
   });
   
   excelPasteArea.value = "";
+  resetListFilters();
   saveToStorage();
   renderAll();
   showToast(`${addedCount} areas jode gaye aur ${updatedCount} update kiye gaye!`, "success");
@@ -818,6 +876,7 @@ btnImportReplace.addEventListener("click", () => {
   state.mappings = {};
   
   excelPasteArea.value = "";
+  resetListFilters();
   saveToStorage();
   renderAll();
   showToast(`Purane areas clear kiye gaye aur ${parsed.length} naye areas replace kiye gaye!`, "success");
@@ -837,6 +896,7 @@ btnClearAllAreas.addEventListener("click", () => {
   state.mappings = {};
   
   excelPasteArea.value = "";
+  resetListFilters();
   saveToStorage();
   renderAll();
   showToast("Sabhi areas aur mappings successfully delete kar diye gaye hain!", "success");
