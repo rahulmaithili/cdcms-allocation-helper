@@ -240,19 +240,22 @@ async function checkLicense(forceOnline = false) {
   let cachedStatus = "";
   let cachedExpiry = "";
   let cachedCompany = "";
+  let cachedLastVerified = 0;
 
   // Retrieve from storage
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
-    const res = await new Promise(r => chrome.storage.local.get(["licenseKey", "licenseStatus", "licenseExpiry", "licenseCompany"], r));
+    const res = await new Promise(r => chrome.storage.local.get(["licenseKey", "licenseStatus", "licenseExpiry", "licenseCompany", "licenseLastVerified"], r));
     savedKey = res.licenseKey || "";
     cachedStatus = res.licenseStatus || "";
     cachedExpiry = res.licenseExpiry || "";
     cachedCompany = res.licenseCompany || "";
+    cachedLastVerified = res.licenseLastVerified || 0;
   } else {
     savedKey = localStorage.getItem("cdcms_license_key") || "";
     cachedStatus = localStorage.getItem("cdcms_license_status") || "";
     cachedExpiry = localStorage.getItem("cdcms_license_expiry") || "";
     cachedCompany = localStorage.getItem("cdcms_license_company") || "";
+    cachedLastVerified = Number(localStorage.getItem("cdcms_license_last_verified") || 0);
   }
 
   if (!savedKey) {
@@ -294,12 +297,16 @@ async function checkLicense(forceOnline = false) {
     }
   } catch (err) {
     console.error("License check failed, using cache: ", err);
-    // Network failed: if cache was active, allow offline usage
-    if (cachedStatus === "active") {
+    // Network failed: offline usage is allowed ONLY within 24h of the last
+    // successful server verification. Beyond that the tool locks until the
+    // server can be reached again, so a revoked license cannot run offline
+    // indefinitely on a stale cache.
+    const OFFLINE_GRACE_MS = 24 * 60 * 60 * 1000;
+    if (cachedStatus === "active" && cachedLastVerified && (Date.now() - cachedLastVerified) <= OFFLINE_GRACE_MS) {
       updateLicenseUI("active", savedKey, cachedExpiry, cachedCompany);
       return true;
     } else {
-      updateLicenseUI("invalid", savedKey, "", "", "Offline: Server connection failed.");
+      updateLicenseUI("invalid", savedKey, "", "", "Offline: Server connection failed and offline grace has expired. Connect to the internet to re-verify.");
       return false;
     }
   }
@@ -320,18 +327,24 @@ async function syncLicenseOnline(key) {
 }
 
 function saveLicenseCache(key, status, expiry, company) {
+  // High-security: only a fresh server "active" verdict refreshes the offline
+  // grace clock. Non-active verdicts clear it, so a revoked license cannot
+  // ride an old timestamp through a network-error fallback.
+  const lastVerified = status === "active" ? Date.now() : 0;
   if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
     chrome.storage.local.set({
       licenseKey: key,
       licenseStatus: status,
       licenseExpiry: expiry,
-      licenseCompany: company
+      licenseCompany: company,
+      licenseLastVerified: lastVerified
     });
   } else {
     localStorage.setItem("cdcms_license_key", key);
     localStorage.setItem("cdcms_license_status", status);
     localStorage.setItem("cdcms_license_expiry", expiry);
     localStorage.setItem("cdcms_license_company", company);
+    localStorage.setItem("cdcms_license_last_verified", String(lastVerified));
   }
 }
 

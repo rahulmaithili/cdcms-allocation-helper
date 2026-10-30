@@ -5,6 +5,55 @@ let localState = {
   vendors: []
 };
 
+// High-security license re-verification (same LicenseWala RPC + public key
+// the options page already uses; host permission already in manifest).
+// The content script previously trusted the cached status forever, so an
+// admin-revoked license kept working on portal pages until the options
+// page was opened. Now the portal page itself re-verifies every 30 minutes
+// and locks immediately on a server non-active verdict. Network errors keep
+// the cached state (bounded by the expiry check at init and the options
+// page's 24h offline grace).
+const LICENSEWALA_RPC_URL = "https://wyeejbncddpxhwtijkjt.supabase.co/rest/v1/rpc/verify_license";
+const LICENSEWALA_ANON_KEY = "sb_publishable_VfUVN_NPMbe9OudO5ZonPw_kMKaub_u";
+const LICENSE_RECHECK_MS = 30 * 60 * 1000;
+
+async function reverifyContentLicense() {
+  try {
+    if (typeof chrome === "undefined" || !chrome.storage || !chrome.storage.local) return;
+    const res = await new Promise(r => chrome.storage.local.get(["licenseKey", "deviceId"], r));
+    const key = res.licenseKey || "";
+    if (!key) return;
+    const response = await fetch(LICENSEWALA_RPC_URL, {
+      method: "POST",
+      headers: {
+        "apikey": LICENSEWALA_ANON_KEY,
+        "Authorization": `Bearer ${LICENSEWALA_ANON_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        p_license_key: String(key).trim().toUpperCase(),
+        p_device_id: res.deviceId || ""
+      })
+    });
+    if (!response.ok) return;
+    const result = await response.json();
+    if (!result || !result.status) return;
+    if (result.status !== "active") {
+      chrome.storage.local.set({ licenseStatus: result.status, licenseExpiry: "" });
+      const panel = document.getElementById("cdcms-helper-panel");
+      if (panel) panel.remove();
+      injectLicenseWarningBanner(result.status);
+    } else {
+      chrome.storage.local.set({
+        licenseStatus: "active",
+        licenseExpiry: result.expiry || "",
+        licenseCompany: result.company || "",
+        licenseLastVerified: Date.now()
+      });
+    }
+  } catch (e) { /* network failure: keep cached state */ }
+}
+
 // Log helper
 function log(msg) {
   console.log(`[CDCMS Helper] ${msg}`);
@@ -724,6 +773,8 @@ function initContentScript() {
       if (status === "active" && expiry >= today) {
         log("License valid. Activating helper.");
         proceedWithInitialization();
+        reverifyContentLicense();
+        setInterval(reverifyContentLicense, LICENSE_RECHECK_MS);
       } else {
         log(`License invalid or expired (Status: ${status}, Expiry: ${expiry}). Locking helper.`);
         injectLicenseWarningBanner(status);
