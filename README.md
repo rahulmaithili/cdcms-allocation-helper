@@ -61,6 +61,17 @@ and every future update will reach you automatically — no manual steps.
 > Manual installs do not auto-update. After a new release, download the
 > new version and reload the extension from `chrome://extensions`.
 
+## Incognito mode
+
+The helper also works in Incognito windows:
+
+1. Open `chrome://extensions`, find this extension, and turn on
+   **Allow in Incognito**. (Chrome keeps this off by default, and no
+   extension can turn it on by itself.)
+2. That's it — the license you activated in a normal window works in
+   Incognito too, because the extension shares one license state
+   (`"incognito": "spanning"` in the manifest).
+
 ## License activation
 
 A valid **LicenseWala subscription license** is required. Keys are
