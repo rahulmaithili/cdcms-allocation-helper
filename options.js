@@ -720,6 +720,75 @@ btnImport.addEventListener("click", () => {
   importFileInput.click();
 });
 
+// --- JSON import helpers (pure functions: no DOM, no chrome APIs) ---
+// One area entry in any shape a user might have: an object with code/name
+// under any common key spelling, or a [code, name] pair. Returns
+// {code, name} with both coerced to strings, or null when unusable.
+function normalizeAreaEntry(a) {
+  if (!a) return null;
+  if (Array.isArray(a)) {
+    const code = a[0];
+    const name = a[1];
+    if (code === undefined || code === null || code === "" || name === undefined || name === null || name === "") return null;
+    return { code: String(code), name: String(name) };
+  }
+  if (typeof a === "object") {
+    const code = a.code ?? a.Code ?? a.areaCode ?? a.AreaCode ?? a.area_code ?? a.AREA_CODE;
+    const name = a.name ?? a.Name ?? a.areaName ?? a.AreaName ?? a.area_name ?? a.AREA_NAME;
+    if (code === undefined || code === null || code === "" || name === undefined || name === null || name === "") return null;
+    return { code: String(code), name: String(name) };
+  }
+  return null;
+}
+
+// Find an area list anywhere in a parsed JSON value. Accepts:
+//  - this helper's own backup: {areas: [...], vendors: [...], mappings: {...}}
+//  - a bare array of area entries
+//  - a wrapper: {data: {areas: [...]}} / {result: {areas: [...]}}
+//  - a code->name map: {"4": "KAMALPUR", "5": "YAMSAM"}
+// Returns the normalized area list, or null when nothing usable is found.
+function extractAreas(data) {
+  if (!data) return null;
+  if (Array.isArray(data)) {
+    const areas = data.map(normalizeAreaEntry).filter(Boolean);
+    return areas.length ? areas : null;
+  }
+  if (typeof data === "object") {
+    const containers = [data.areas, data.Areas, data.data && data.data.areas, data.result && data.result.areas];
+    for (const c of containers) {
+      if (Array.isArray(c)) {
+        const areas = c.map(normalizeAreaEntry).filter(Boolean);
+        if (areas.length) return areas;
+      }
+    }
+    // Code -> name map: every value must be a non-empty string, otherwise
+    // this is not a map (e.g. it is a backup object) and we return null.
+    const keys = Object.keys(data);
+    if (keys.length) {
+      const areas = [];
+      let mapLike = true;
+      for (const k of keys) {
+        const v = data[k];
+        if (typeof v === "string" && v) areas.push({ code: String(k), name: v });
+        else { mapLike = false; break; }
+      }
+      if (mapLike && areas.length) return areas;
+    }
+  }
+  return null;
+}
+
+// A vendor entry: a plain string, or an object carrying a name.
+function normalizeVendorEntry(v) {
+  if (typeof v === "string" && v) return v;
+  if (v && typeof v === "object") {
+    const name = v.name ?? v.Name ?? v.vendor ?? v.Vendor;
+    if (typeof name === "string" && name) return name;
+  }
+  return null;
+}
+// --- end JSON import helpers ---
+
 // File Import change
 importFileInput.addEventListener("change", (e) => {
   const file = e.target.files[0];
@@ -729,34 +798,30 @@ importFileInput.addEventListener("change", (e) => {
   reader.onload = function(evt) {
     try {
       const data = JSON.parse(evt.target.result);
-      const hasMappings = data && typeof data.mappings === "object" && data.mappings !== null;
-      const hasVendors = data && Array.isArray(data.vendors);
-      const hasAreas = data && Array.isArray(data.areas);
-      // Accept the file if ANY section is present — a backup missing the
-      // vendors array used to be rejected outright even when its areas
-      // were perfectly fine. Sections absent from the file are left as-is.
-      if (!hasMappings && !hasVendors && !hasAreas) {
-        showToast("Invalid backup file structure!", "danger");
-        return;
-      }
 
-      if (hasAreas) {
-        // Keep only entries with a code and a name, both coerced to strings.
-        state.areas = data.areas
-          .filter(a => a && a.code !== undefined && a.code !== null && a.code !== "" && a.name !== undefined && a.name !== null && a.name !== "")
-          .map(a => ({ code: String(a.code), name: String(a.name) }));
-      }
-      if (hasVendors) {
-        // Vendors are strings only.
-        state.vendors = data.vendors.filter(v => typeof v === "string" && v);
-      }
-      if (hasMappings) {
-        // Accept the object form {code: vendor} AND the array form
-        // [{code, vendor}], normalized to the object form.
+      // Areas first, in any accepted shape (backup, bare list, wrapper,
+      // or code->name map). A section is replaced ONLY when it actually
+      // yields entries — a file that parses to zero usable areas must
+      // never wipe the list the user already has, and a file whose shape
+      // is not recognized must say so instead of silently leaving the
+      // old list on screen. That silent no-op is exactly why an upload
+      // used to leave just the old 2 areas showing.
+      const areas = extractAreas(data);
+      const vendors = data && Array.isArray(data.vendors)
+        ? data.vendors.map(normalizeVendorEntry).filter(Boolean)
+        : null;
+      let mappings = null;
+      if (data && typeof data.mappings === "object" && data.mappings !== null) {
+        // Accept the object form {code: vendor} AND the array forms
+        // [{code, vendor}] and [[code, vendor]], normalized to objects.
         const normalized = {};
         if (Array.isArray(data.mappings)) {
           data.mappings.forEach(m => {
-            if (m && m.code !== undefined && m.code !== null && m.code !== "" && m.vendor) {
+            if (Array.isArray(m)) {
+              if (m[0] !== undefined && m[0] !== null && m[0] !== "" && m[1]) {
+                normalized[String(m[0])] = String(m[1]);
+              }
+            } else if (m && m.code !== undefined && m.code !== null && m.code !== "" && m.vendor) {
               normalized[String(m.code)] = String(m.vendor);
             }
           });
@@ -768,8 +833,17 @@ importFileInput.addEventListener("change", (e) => {
             }
           });
         }
-        state.mappings = normalized;
+        if (Object.keys(normalized).length) mappings = normalized;
       }
+
+      if (!areas && !(vendors && vendors.length) && !mappings) {
+        showToast("Is file me koi area/vendor/mapping nahi mila! Backup file ya area list (code + name) wali JSON honi chahiye.", "danger");
+        return;
+      }
+
+      if (areas) state.areas = areas;
+      if (vendors && vendors.length) state.vendors = vendors;
+      if (mappings) state.mappings = mappings;
 
       resetListFilters();
       saveToStorage();

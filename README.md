@@ -25,7 +25,10 @@ by vendor — is slow and error-prone.
   (Code + Name columns) to add or replace areas in seconds.
 - **Backup export / import** — export your complete setup
   (areas, vendors, mappings) as a JSON file, and restore it on any
-  machine with one click.
+  machine with one click. Import also accepts plain area lists: a bare
+  JSON array, a code-to-name map, or Code/Name columns under any common
+  key spelling — and it never silently leaves the old list in place
+  when a file is not recognized.
 - **Cash Memo Print support** — the helper also works on the
   Allocation-wise Cash Memo Print page.
 - **License protected** — the extension activates with a LicenseWala
