@@ -496,6 +496,13 @@
         <div class="delivery-tags-container" id="vendor-tags-container">
           <!-- Tag items injected here -->
         </div>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
+          <textarea id="vendor-paste-area" class="input-field" style="width: 100%; height: 80px; resize: vertical; font-family: monospace; font-size: 12px; padding: 10px; box-sizing: border-box;" placeholder="Excel se Delivery Man ka column copy karke yahan paste karein...&#10;Example:&#10;Ramesh Kumar&#10;Suresh Yadav&#10;Mukesh Singh"></textarea>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+            <button id="btn-add-vendors-bulk" class="btn btn-primary">Add Vendors from Paste</button>
+            <button id="btn-clear-all-vendors" class="btn btn-danger" style="margin-left: auto;">Delete All Delivery Men</button>
+          </div>
+        </div>
       </div>
       
       <!-- Bulk Area Manager -->

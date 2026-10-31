@@ -30,7 +30,12 @@ by vendor — is slow and error-prone.
   key spelling — and it never silently leaves the old list in place
   when a file is not recognized. Mappings whose area row is missing are
   recovered as rows automatically (name shown as the code until the
-  real name is updated via Excel Append).
+  real name is updated via Excel Append). Export always writes a
+  self-consistent file: every mapping has its area row in it.
+- **Delivery men in bulk** — paste a column of names straight from
+  Excel to add many delivery men at once (duplicates skipped), or
+  delete the whole list with Delete All (mappings using deleted men
+  are removed too, like single-delete already did).
 - **Cash Memo Print support** — the helper also works on the
   Allocation-wise Cash Memo Print page.
 - **License protected** — the extension activates with a LicenseWala

@@ -136,6 +136,9 @@ const searchBox = document.getElementById("search-box");
 const filterSelect = document.getElementById("filter-select");
 const newVendorNameInput = document.getElementById("new-vendor-name");
 const btnAddVendor = document.getElementById("btn-add-vendor");
+const vendorPasteArea = document.getElementById("vendor-paste-area");
+const btnAddVendorsBulk = document.getElementById("btn-add-vendors-bulk");
+const btnClearAllVendors = document.getElementById("btn-clear-all-vendors");
 const vendorTagsContainer = document.getElementById("vendor-tags-container");
 const btnSaveAll = document.getElementById("btn-save-all");
 const btnExport = document.getElementById("btn-export");
@@ -653,6 +656,20 @@ function renderMappingTable() {
 searchBox.addEventListener("input", renderMappingTable);
 filterSelect.addEventListener("change", renderMappingTable);
 
+// --- Vendor bulk-paste helpers (pure functions) ---
+// One vendor name per line, as copied from a single Excel column. If a
+// line carries extra columns (tab/comma/semicolon separated), the first
+// field is the name. Blank lines are skipped.
+function parseVendorList(text) {
+  const names = [];
+  text.split(/\r?\n/).forEach(line => {
+    const first = line.split(/[\t,;]/)[0].trim();
+    if (first) names.push(first);
+  });
+  return names;
+}
+// --- end vendor bulk-paste helpers ---
+
 // Add Vendor Name
 btnAddVendor.addEventListener("click", () => {
   const name = newVendorNameInput.value.trim();
@@ -669,6 +686,52 @@ btnAddVendor.addEventListener("click", () => {
   // Re-save and re-render
   saveToStorage();
   renderAll();
+});
+
+// Add Vendors from Excel column paste
+btnAddVendorsBulk.addEventListener("click", () => {
+  const text = vendorPasteArea.value;
+  if (!text.trim()) {
+    showToast("Pasted data khali hai. Excel se Delivery Man ka column copy karke yahan paste karein.", "danger");
+    return;
+  }
+
+  const pasted = parseVendorList(text);
+  let addedCount = 0;
+  let skippedCount = 0;
+  pasted.forEach(name => {
+    if (state.vendors.includes(name)) skippedCount++;
+    else { state.vendors.push(name); addedCount++; }
+  });
+
+  vendorPasteArea.value = "";
+  saveToStorage();
+  renderAll();
+  showToast(`${addedCount} delivery men jode gaye${skippedCount ? `, ${skippedCount} pehle se the (skip kiye gaye)` : ""}!`, "success");
+});
+
+// Delete All Delivery Men
+btnClearAllVendors.addEventListener("click", () => {
+  if (state.vendors.length === 0) {
+    showToast("Pehle se hi koi delivery man nahi hai.", "info");
+    return;
+  }
+
+  // Same rule as single-vendor delete: a mapping that used a deleted
+  // vendor goes too — otherwise it would point at a name that no longer
+  // exists. Since every vendor is being deleted, this clears mappings.
+  const affected = Object.keys(state.mappings).filter(code => state.mappings[code] && state.vendors.includes(state.mappings[code])).length;
+  const confirmMsg = `WARNING: Kya aap sach mein sabhi ${state.vendors.length} delivery men ko DELETE karna chahte hain?${affected ? ` Unki ${affected} mappings bhi hat jayengi aur wo areas Unmapped ho jayenge.` : ""} Ye action undo nahi ho sakta.`;
+  if (!confirm(confirmMsg)) return;
+
+  for (const code in state.mappings) {
+    if (state.vendors.includes(state.mappings[code])) delete state.mappings[code];
+  }
+  state.vendors = [];
+
+  saveToStorage();
+  renderAll();
+  showToast("Sabhi delivery men delete kar diye gaye hain!", "success");
 });
 
 // Remove Vendor Name
@@ -734,6 +797,17 @@ btnSaveAll.addEventListener("click", () => {
 
 // Export Mappings to File
 btnExport.addEventListener("click", () => {
+  // Export must always be self-consistent: every mapping needs its area
+  // row in the file, otherwise a later import restores mappings without
+  // areas. Recover orphans first (persisted silently, no extra toast).
+  const recovered = recoverOrphanMappings();
+  if (recovered) {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      chrome.storage.local.set({ areas: state.areas });
+    } else {
+      localStorage.setItem("cdcms_areas", JSON.stringify(state.areas));
+    }
+  }
   const dataStr = JSON.stringify(state, null, 2);
   const blob = new Blob([dataStr], { type: "application/json" });
   const url = URL.createObjectURL(blob);
