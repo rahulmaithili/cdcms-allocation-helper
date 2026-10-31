@@ -28,7 +28,9 @@ by vendor — is slow and error-prone.
   machine with one click. Import also accepts plain area lists: a bare
   JSON array, a code-to-name map, or Code/Name columns under any common
   key spelling — and it never silently leaves the old list in place
-  when a file is not recognized.
+  when a file is not recognized. Mappings whose area row is missing are
+  recovered as rows automatically (name shown as the code until the
+  real name is updated via Excel Append).
 - **Cash Memo Print support** — the helper also works on the
   Allocation-wise Cash Memo Print page.
 - **License protected** — the extension activates with a LicenseWala

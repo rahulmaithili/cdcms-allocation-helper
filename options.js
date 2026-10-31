@@ -443,7 +443,13 @@ async function init() {
         ];
         chrome.storage.local.set({ vendors: state.vendors });
       }
-      
+
+      const recovered = recoverOrphanMappings();
+      if (recovered) {
+        chrome.storage.local.set({ areas: state.areas });
+        showToast(`${recovered} mappings ke liye area rows wapas bana di gayi hain (naam abhi code jaisa hai — Excel se asli naam update kar sakte ho).`, "info");
+      }
+
       renderAll();
     });
   } else {
@@ -460,7 +466,13 @@ async function init() {
       "SANJAY", "Sujeet Kumar"
     ];
     state.areas = localAreas ? JSON.parse(localAreas) : DEFAULT_AREAS;
-    
+
+    const recovered = recoverOrphanMappings();
+    if (recovered) {
+      localStorage.setItem("cdcms_areas", JSON.stringify(state.areas));
+      showToast(`${recovered} mappings ke liye area rows wapas bana di gayi hain (naam abhi code jaisa hai — Excel se asli naam update kar sakte ho).`, "info");
+    }
+
     renderAll();
   }
 }
@@ -519,6 +531,28 @@ function updateStats() {
   statMappedAreas.innerText = mappedCount;
   statUnmappedAreas.innerText = total - mappedCount;
   statTotalVendors.innerText = state.vendors.length;
+}
+
+// Recover area rows for mappings whose area entry is missing. Mappings
+// live independently of the area list: an import without a mappings
+// section leaves old mappings untouched, and an import with fewer areas
+// replaces the list — either way a mapping can end up without a matching
+// area row, and such a mapping is invisible in the dashboard table even
+// though it still drives the portal automation. Recreate the row from
+// the mapping code itself; the name is a placeholder (the code) until
+// the real name arrives via Excel Append, which updates names by code
+// and keeps mappings. Returns how many rows were recovered.
+function recoverOrphanMappings() {
+  const known = new Set(state.areas.map(a => String(a.code)));
+  let recovered = 0;
+  Object.keys(state.mappings).forEach(code => {
+    if (!known.has(String(code))) {
+      state.areas.push({ code: String(code), name: String(code) });
+      known.add(String(code));
+      recovered++;
+    }
+  });
+  return recovered;
 }
 
 // Reset the list filters so an imported (or cleared) list always renders
@@ -845,10 +879,15 @@ importFileInput.addEventListener("change", (e) => {
       if (vendors && vendors.length) state.vendors = vendors;
       if (mappings) state.mappings = mappings;
 
+      // A file with fewer areas than the stored mappings (or no mappings
+      // section at all) leaves orphan mappings behind — recover them as
+      // rows so imported mappings never stay invisible.
+      const recovered = recoverOrphanMappings();
+
       resetListFilters();
       saveToStorage();
       renderAll();
-      showToast(`${state.areas.length} areas, ${state.vendors.length} vendors, ${Object.keys(state.mappings).length} mappings imported`, "success");
+      showToast(`${state.areas.length} areas, ${state.vendors.length} vendors, ${Object.keys(state.mappings).length} mappings imported${recovered ? ` (${recovered} orphan mappings se area rows banayi gayi)` : ""}`, "success");
     } catch (err) {
       showToast("Error parsing backup file!", "danger");
     }
